@@ -1,13 +1,7 @@
 import { parse } from "node-html-parser";
-// import { deleteFromCache, readFromCache, writeToCache } from "./cache";
-
-
 
 async function fetchTotalContributions(name: string) {
-    // const cached = await readFromCache<number>(`${name}-github-total-contributions-all-time-v2`);
-    // if (cached) {
-    //     return cached;  
-    // }
+
     const url = `https://github.com/${name}?action=show&controller=profiles&tab=contributions&user_id=${name}`;
     const data = await fetch(url,
         {
@@ -52,13 +46,8 @@ async function fetchTotalContributions(name: string) {
             console.error(`Failed to parse total contributions for ${name}`)
         }
     }
-    // await writeToCache(`${name}-github-total-contributions-all-time-v2`, total);
     return total;
 }
-
-// export async function deleteGithubContribtionsCache(name: string) {
-//     return await deleteFromCache(`${name}-github-total-contributions-all-time-v2`);
-// }
 
 export type GithubMetadata = {
     login: string;
@@ -96,24 +85,16 @@ export type GithubMetadata = {
 };
 
 async function fetchGithubMetadata(name: string): Promise<GithubMetadata | undefined> {
-    // const cached = await readFromCache<GithubMetadata>(`${name}-metadata-github`);
-    // if (cached && !('json' in cached) && 'login' in cached) {
-    //     return cached;
-    // }
+
     const data = await fetch(`https://api.github.com/users/${name}`);
     if (!data.ok) {
         console.error(`Failed to fetch Github metadata for ${name} ${data.status}`);
         return;
     } else {
         const json :GithubMetadata = await data.json();
-        // await writeToCache(`${name}-metadata-github`, json);
         return json;
     }
 }
-
-// export async function deleteGithubMetadataCache(name: string) {
-//     return await deleteFromCache(`${name}-metadata-github`);
-// }
 
 export async function fetchGithubPage(name: string) {
     const [totalContributions, metadata] = await Promise.all([

@@ -1,37 +1,19 @@
 import { useEffect, useState } from "react";
+import { MatchedUser, GraphQLResponse } from "../actions/types";
 import axios from "axios";
 
-interface MatchedUser {
-  githubUrl: string | null;
-}
-
-interface GraphQLResponse {
-  data: {
-    matchedUser: MatchedUser;
-  };
-}
-
-// const fetchLeetCodeProfile = async (username: string) => {
-//   const query = `
-//       query {
-//         matchedUser(username: "${username}") {
-//           githubUrl
-//         }
-//       }
-//     `;
-//   const requestData = { query };
-//   const response = await axios.post<GraphQLResponse>(
-//     "https://leetcode.com/graphql",
-//     requestData
-//   );
-//   return response
-// };
 const fetchLeetCodeProfile = async (username: string): Promise<GraphQLResponse> => {
-    const response = await fetch(`/api/hello?username=${encodeURIComponent(username)}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch LeetCode profile ') }
-    return response.json();
-  };
+  try {
+    const response = await axios.get(`/api/github-username?username=${encodeURIComponent(username)}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error('Failed to fetch LeetCode profile');
+    } else {
+      throw error; // An error that isn't from Axios
+    }
+  }
+};
 
 export const useLeetCodeProfile =(username:string) =>{
     const [profileData, setProfileData] = useState<MatchedUser | null>(null);
@@ -42,11 +24,11 @@ export const useLeetCodeProfile =(username:string) =>{
         if(!username){
             return;
         }
-        const fetchData = async()=>{
+        const fetchData = async()=>{ 
             setIsLoading(true);
             try{
             const response = await fetchLeetCodeProfile(username);
-            setProfileData(response.data.matchedUser);
+            setProfileData(response.data?.matchedUser??null);
             } catch(err){
                 setError('Failed');
             } finally{

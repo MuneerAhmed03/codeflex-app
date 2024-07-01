@@ -1,15 +1,7 @@
 import type { NextRequest } from "next/server";
+import { submitStats } from "@/actions/types";
 
 export const runtime = "edge";
-
-interface GraphQLResponse {
-  date?: {
-    matchedUser?: {
-      githubUrl: string | null;
-    };
-  };
-  errors?: Array<{ message: string }>;
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,30 +14,39 @@ export async function GET(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
       });
     }
-
     const query = `
-      query {
-        matchedUser(username: "${username}") {
-          githubUrl
+        query { 
+            matchedUser(username: "${username}") {
+            submitStats {
+                acSubmissionNum{
+                    difficulty
+                    count
+            }
         }
       }
-    `;
-    const leetcoderesponse = await fetch("https://leetcode.com/graphql", {
+  }  `;
+    const submission = await fetch("https://leetcode.com/graphql", {
       method: `POST`,
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ query }),
     });
-
-    const data: GraphQLResponse = await leetcoderesponse.json();
-    if (data.errors) {
-      return new Response(JSON.stringify({ errors: data.errors[0].message }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+    const submissionData: submitStats = await submission.json();
+    if (submissionData.errors) {
+      return new Response(
+        JSON.stringify({ errors: submissionData.errors[0].message }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
-    return new Response(JSON.stringify(data), {
+    const totalSub =
+      submissionData.data.matchedUser.submitStats.acSubmissionNum.find(
+        (entry) => entry.difficulty === "All"
+      ) || {};
+    return new Response(JSON.stringify(totalSub ), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

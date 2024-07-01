@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { CodeIcon, GithubIcon, LoadingIcon } from "./ui/icons"
 import { ChangeEvent, useEffect, useState } from "react";
-import { useLeetCodeProfile } from "@/app/hooks/useLeetCodeProfile"
+import { useLeetCodeProfile } from "@/hooks/useLeetCodeProfile"
 import axios from "axios"
 
 export function Profile() {
@@ -48,7 +48,10 @@ export function Profile() {
               <LoadingIcon  className="w-5 h-5 p-1 text-muted-foreground loading-icon self-center"/>
             )}
           </div>
-          <Button type="submit" className="w-full">
+          <Button onClick={async ()=>{
+            const response = await axios.get(`/api/submission?username=${encodeURIComponent(debouncedUrl)}`)
+            console.log(response.data);
+          }} type="submit" className="w-full">
             Submit
           </Button>
         </div>
