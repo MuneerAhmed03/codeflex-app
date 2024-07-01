@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       submissionData.data.matchedUser.submitStats.acSubmissionNum.find(
         (entry) => entry.difficulty === "All"
       ) || {};
-    return new Response(JSON.stringify(totalSub ), {
+    return new Response(JSON.stringify(totalSub), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
