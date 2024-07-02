@@ -84,3 +84,14 @@ body {
 .loading-icon {
   animation: spin 1s linear infinite;
 }
+.square::before {
+  float: left;
+  padding-top: 100%; /* This creates a square */
+  content: "";
+}
+
+.square::after {
+  display: block;
+  content: "";
+  clear: both;
+}

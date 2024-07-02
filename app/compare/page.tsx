@@ -1,4 +1,7 @@
+import { CompareBox } from "@/components/compare-box";
 import { fetchGithubPage } from "@/lib/github";
+import { userSchema } from "@/lib/utils";
+import { lcData } from "@/actions/types";
 import axios from "axios";
 type Props = {
   searchParams: {
@@ -18,7 +21,12 @@ async function getData(props: Props) {
   const { leetcode, github } = parse(props);
   const { totalContributions, metadata: githubMetadata } =
     await fetchGithubPage(github);
-  let leetcodeData = {};
+
+  let leetcodeData: lcData = {
+    username: "",
+    githubUrl: "",
+    totalSub: 0,
+  };
 
   const lcresponse = await axios
     .get(`/api/submission/?username=${encodeURIComponent(leetcode)}`)
@@ -41,6 +49,17 @@ async function getData(props: Props) {
       status: `GitHub contributions not found. Go to https://github.com/${github} to make sure it exists and is set to public`,
     } as const;
   }
+
+  const user = userSchema({
+    totalContributions,
+    github: githubMetadata,
+    leetCode: leetcodeData,
+  });
+
+  return {
+    status: "success",
+    user
+  } as const;
 }
 
 export default async function Page(props: Props) {
@@ -53,11 +72,17 @@ export default async function Page(props: Props) {
   } catch (error) {
     return <div>Invalid URL {JSON.stringify(props.searchParams)}</div>;
   }
+  const pageData = (await getData(props));
+  if (!pageData.user) {
+    return (
+      <div>
+        <h1> {pageData.status}</h1>
+      </div>
+    );
+  }
   return (
     <div>
-      <h1>Compare</h1>
-      <p>GitHub: {github}</p>
-      <p>leetcode: {leetcode}</p>
+      <CompareBox />
     </div>
   );
 }

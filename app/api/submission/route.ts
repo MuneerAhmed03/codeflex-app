@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { submitStats } from "@/actions/types";
+import { LeetcodeResponse } from "@/actions/types";
 
 export const runtime = "edge";
 
@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const query = `
         query { 
             matchedUser(username: "${username}") {
+            githubUrl
             submitStats {
                 acSubmissionNum{
                     difficulty
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({ query }),
     });
-    const submissionData: submitStats = await submission.json();
+    const submissionData: LeetcodeResponse = await submission.json();
     if (submissionData.errors) {
       return new Response(
         JSON.stringify({ errors: submissionData.errors[0].message }),
@@ -42,11 +43,13 @@ export async function GET(request: NextRequest) {
         }
       );
     }
-    const totalSub =
-      submissionData.data.matchedUser.submitStats.acSubmissionNum.find(
-        (entry) => entry.difficulty === "All"
-      ) || {};
-    return new Response(JSON.stringify(totalSub), {
+    const totalSub= submissionData.data.matchedUser.submitStats?.acSubmissionNum?.find(
+      (entry) => entry.difficulty === "All"
+    )?.count || {};
+    return new Response(JSON.stringify({
+        githubUrl: submissionData.data.matchedUser.githubUrl,
+        totalSub : totalSub
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
