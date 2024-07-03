@@ -9,45 +9,24 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { GithubIcon, LeetCodeIcon, CopyIcon} from "./ui/icons"
 import { TwitterLogoIcon } from "@radix-ui/react-icons"
+import { UserSchema } from "@/actions/types"
 
-export function CompareBox() {
+export function CompareBox(
+  props: {
+    src : string;
+  }
+) {
   return (
     <div className="flex justify-center items-center min-h-screen">
     <Card className="max-w-2xl p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src="https://avatars.githubusercontent.com/u/97833696?v=4" />
-              <AvatarFallback>FP</AvatarFallback>
-            </Avatar>
-            <div className="ml-4">
-              <h2 className="text-xl font-semibold">Fabien Potencier</h2>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <GithubIcon className="w-4 h-4 mr-1" />
-                <span>258,811 commits</span>
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <LeetCodeIcon className="w-4 h-4 mr-1" />
-                <span>8,304 tweets</span>
-              </div>
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">shiptalkers.dev/compare?name=fabpot</p>
-
-        </div>
-        
-        <div className="flex items-center mt-4">
-          <div className="flex flex-col items-center justify-end w-1/2 h-32">
-            <GithubIcon className="w-6 h-6 mb-1" />
-            <div className="w-8 h-24 bg-green-500" />
-          </div>
-          <div className="flex flex-col items-center justify-end w-1/2 h-32">
-            <LeetCodeIcon className="w-6 h-6 mb-1" />
-            <div className="w-8 h-6 bg-blue-500" />
-          </div>
-        </div>
-      </div>
+    <img
+          src={props.src}
+          width={300}
+          height={200}
+          key={props.src}
+          alt="Placeholder"
+          className="aspect-[2/1] w-[100vw] object-cover sm:h-[270px] md:w-[516px]"
+        />
 
       <p className="mt-4 text-sm">@fabpot spends 3017% more time coding than tweeting</p>
       

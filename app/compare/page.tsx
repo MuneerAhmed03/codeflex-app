@@ -1,8 +1,15 @@
+
 import { CompareBox } from "@/components/compare-box";
 import { fetchGithubPage } from "@/lib/github";
 import { userSchema } from "@/lib/utils";
 import { lcData } from "@/actions/types";
 import axios from "axios";
+import getConfig from 'next/config';
+import { useSearchParams } from "next/navigation";
+
+const { publicRuntimeConfig } = getConfig();
+
+
 type Props = {
   searchParams: {
     leetcode: string;
@@ -21,23 +28,24 @@ async function getData(props: Props) {
   const { leetcode, github } = parse(props);
   const { totalContributions, metadata: githubMetadata } =
     await fetchGithubPage(github);
-
+  console.log(leetcode)
   let leetcodeData: lcData = {
     username: "",
     githubUrl: "",
     totalSub: 0,
   };
 
-  const lcresponse = await axios
-    .get(`/api/submission/?username=${encodeURIComponent(leetcode)}`)
-    .then((response) => {
-      leetcodeData = response.data;
-    })
-    .catch((err) => {
-      return {
-        status: `LeetCode profile not found. Go to https://leetcode.com/${leetcode} to make sure it exists and is set to public`,
-      } as const;
-    });
+  try {
+    const response = await axios.get(
+      `http://localhost:3000/api/submission?username=${encodeURIComponent(leetcode)}`
+    );
+    leetcodeData = response.data;
+  } catch (error) {
+    console.error("Error fetching LeetCode data:", error);
+    return {
+      status: `LeetCode profile not found. Go to https://leetcode.com/${leetcode} to make sure it exists and is set to public`,
+    } as const;
+  }
 
   if (!githubMetadata) {
     return {
@@ -49,7 +57,7 @@ async function getData(props: Props) {
       status: `GitHub contributions not found. Go to https://github.com/${github} to make sure it exists and is set to public`,
     } as const;
   }
-
+  console.log(leetcodeData);
   const user = userSchema({
     totalContributions,
     github: githubMetadata,
@@ -58,7 +66,7 @@ async function getData(props: Props) {
 
   return {
     status: "success",
-    user
+    user,
   } as const;
 }
 
@@ -72,7 +80,7 @@ export default async function Page(props: Props) {
   } catch (error) {
     return <div>Invalid URL {JSON.stringify(props.searchParams)}</div>;
   }
-  const pageData = (await getData(props));
+  const pageData = await getData(props);
   if (!pageData.user) {
     return (
       <div>
@@ -80,9 +88,16 @@ export default async function Page(props: Props) {
       </div>
     );
   }
+  const imgurl = new URLSearchParams({
+    avatar: pageData.user.avatar,
+    github: pageData.user.totalContributions.toString(),
+    lc: pageData.user.totalSubmissions.toString(),
+    name: pageData.user.name,
+  });
   return (
+
     <div>
-      <CompareBox />
+      <CompareBox src={`http://localhost:3000/api/compare?${imgurl.toString()}`} />
     </div>
   );
 }

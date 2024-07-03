@@ -1,35 +1,63 @@
 import { UserSchema } from "@/actions/types";
-import { LeetCodeIcon } from "./ui/icons";
+import { LeetCodeIcon, GithubIcon } from "./ui/icons";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export function GitTweetBars(props: {
-  user: Pick<UserSchema, "totalContributions" | "totalSubmissions">;
+  commits:number;
+  submissions:number;
   barHeight: number;
-  barWidth?: number;
-  iconSize?: number;
 }) {
-  const { user } = props;
-  const { barHeight, iconSize = 48, barWidth = 100 } = props;
-  const { totalSubmissions , totalContributions :commits} = user;
-  const tweetBarHeight =
-    totalSubmissions + commits > 0 ? barHeight * (totalSubmissions / (totalSubmissions + commits)) : 0;
+  const { commits, submissions, barHeight } = props;
+  // const { barHeight, iconSize = 48, barWidth = 100 } = props;
+  // const { totalSubmissions , totalContributions :commits} = user;
+  const lcBarHeight =
+    submissions + commits > 0 ? barHeight * (submissions / (submissions + commits)) : 0;
   const commitBarHeight =
-    totalSubmissions + commits > 0 ? barHeight * (commits / (totalSubmissions + commits)) : 0;
+    submissions + commits > 0 ? barHeight * (commits / (submissions + commits)) : 0;
 
   return (
-    <div className="flex flex-row gap-5 justify-end items-end" style={{ height: `${barHeight}px` }}>
-      <div className="flex flex-col gap-2.5 items-center">
-        <LeetCodeIcon/>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        height: `${barHeight}px`,
+        gap: "20px",
+        justifyContent: "flex-end",
+        alignItems: "flex-end",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
+        <LeetCodeIcon width={45}  height={45} />
         <div
-          className="bg-blue-400"
-          style={{ width: `${barWidth}px`, height: `${tweetBarHeight}px` }}
+          style={{
+            width: `100px`,
+            height: `${lcBarHeight}px`,
+            backgroundColor: "#ce7e00",
+          }}
         />
       </div>
-      <div className="flex flex-col gap-2.5 items-center">
-        <GitHubLogoIcon/>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          alignItems: "center",
+        }}
+      >
+        <GithubIcon width={48}  height={48} />
         <div
-          className="bg-green-600"
-          style={{ width: `${barWidth}px`, height: `${commitBarHeight}px` }}
+          style={{
+            width: `100px`,
+            height: `${commitBarHeight}px`,
+            backgroundColor: "#26a641",
+          }}
         />
       </div>
     </div>
