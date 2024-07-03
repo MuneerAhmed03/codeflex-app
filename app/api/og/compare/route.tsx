@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { GithubIcon, LeetCodeIcon } from "../../../../components/ui/icons";
 import { GitTweetBars } from "@/components/GitLeetBar";
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
   const parsed = new URL(req.url).searchParams;
@@ -34,15 +34,17 @@ export async function GET(req: NextRequest) {
           gap: "8px",
           alignItems: "center",
           justifyContent: "flex-start",
-          fontSize: "24px",
+          fontSize: "2rem",
           paddingBottom: "15px",
           fontWeight: "bold",
         }}
       >
         <GithubIcon
-          style={{ width: "2rem", height: "2rem", marginRight: "0.25rem" }}
+          style={{ width: "3rem", height: "3rem", marginRight: "0.25rem" }}
         />
-        {`${commits} commits`}
+        <span>
+          {`${commits} commits`}
+        </span>
       </div>
       <div
         style={{
@@ -51,14 +53,15 @@ export async function GET(req: NextRequest) {
           gap: "8px",
           alignItems: "center",
           justifyContent: "flex-start",
-          fontSize: "24px",
+          fontSize: "2rem",
           fontWeight: "bold",
         }}
       >
         <LeetCodeIcon
-          style={{ width: "2rem", height: "2rem", marginRight: "0.25rem" }}
+          style={{ width: "3rem", height: "3rem", marginRight: "0.25rem" }}
         />
-        {`${solved} solved`}
+        <span>{`${solved} solved`}</span>
+        
       </div>
     </div>
   );

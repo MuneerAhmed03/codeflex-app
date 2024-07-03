@@ -34,7 +34,9 @@ export function GitTweetBars(props: {
           alignItems: "center",
         }}
       >
-        <LeetCodeIcon width={45}  height={45} />
+        <LeetCodeIcon
+          style={{ width: "3rem", height: "3rem", marginRight: "0.25rem" }}
+        />
         <div
           style={{
             width: `100px`,
@@ -51,7 +53,9 @@ export function GitTweetBars(props: {
           alignItems: "center",
         }}
       >
-        <GithubIcon width={48}  height={48} />
+        <GithubIcon
+          style={{ width: "3rem", height: "3rem", marginRight: "0.25rem" }}
+        />
         <div
           style={{
             width: `100px`,

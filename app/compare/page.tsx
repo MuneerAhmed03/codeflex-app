@@ -7,8 +7,7 @@ import axios from "axios";
 import getConfig from 'next/config';
 import { useSearchParams } from "next/navigation";
 
-const { publicRuntimeConfig } = getConfig();
-
+export const runtime = 'edge';
 
 type Props = {
   searchParams: {
