@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
-import { GithubIcon, LeetCodeIcon } from "../../../components/ui/icons";
+import { GithubIcon, LeetCodeIcon } from "../../../../components/ui/icons";
 import { GitTweetBars } from "@/components/GitLeetBar";
-
 export const runtime = "edge";
 
 export async function GET(req: NextRequest) {

@@ -97,7 +97,7 @@ export default async function Page(props: Props) {
   return (
 
     <div>
-      <CompareBox src={`http://localhost:3000/api/compare?${imgurl.toString()}`} />
+      <CompareBox src={`http://localhost:3000/api/og/compare?${imgurl.toString()}`} />
     </div>
   );
 }
