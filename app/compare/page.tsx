@@ -2,9 +2,14 @@ import { CompareBox } from "@/components/compare-box";
 import { fetchGithubPage } from "@/lib/github";
 import { userSchema } from "@/lib/utils";
 import { lcData,LeetcodeResponse } from "@/actions/types";
+import Link from "next/link"
+import { GithubIcon, LeetCodeIcon } from "@/components/ui/icons";
+import { fetchLeetCode } from "@/lib/lc";
+import { Metadata } from "next";
 
 export const runtime = "edge";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 type Props = {
   searchParams: {
     leetcode: string;
@@ -18,40 +23,37 @@ function parse(props: Props) {
     github: props.searchParams.github.toLowerCase(),
   };
 }
-async function fetchLeetCode(username: string) {
-  const query = `
-        query { 
-            matchedUser(username: "${username}") {
-            githubUrl
-            submitStats {
-                acSubmissionNum{
-                    difficulty
-                    count
-            }
-        }
-      }
-  }  `;
-  const submission = await fetch("https://leetcode.com/graphql", {
-    method: `POST`,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query }),
-  });
-  const submissionData: LeetcodeResponse = await submission.json();
-  if (submissionData.errors) {
-    console.log(`Failed to fetch leetcode profile for ${username}`)
-    return;
+
+function  getRatioText(input: {
+  submissions: number;
+  commits: number;
+  displayName: string;
+}) {
+  const { submissions, commits, displayName } = input;
+
+  // edge cases
+  if (submissions === 0 && commits === 0) {
+    return `${displayName} is a mysterious creature`;
   }
-  const totalSub =
-    submissionData.data.matchedUser.submitStats?.acSubmissionNum?.find(
-      (entry) => entry.difficulty === "All"
-    )?.count || null;
-  return {
-    username,
-    githubUrl: submissionData.data.matchedUser.githubUrl,
-    totalSub: totalSub,
-  } as lcData;
+  if (submissions === 0) {
+    return `${displayName} is locked into coding`;
+  }
+  if (commits === 0) {
+    return `${displayName} is a Twitter addict`;
+  }
+  if (submissions === commits) {
+    return `${displayName}'s life is perfectly balanced, as all things should be`;
+  }
+
+  const percentageTweets = Math.abs((submissions / commits) * 100 - 100).toFixed();
+  const percentageCommits = Math.abs((commits / submissions) * 100 - 100).toFixed();
+  const txt =
+    percentageCommits == percentageTweets
+      ? `${displayName} spends equal time tweeting and coding`
+      : submissions > commits
+        ? `${displayName} spends ${percentageTweets}% more time grinding LeetCode than pushing code`
+        : `${displayName} spends ${percentageCommits}% more time pushing code than grinding LeetCode`;
+  return txt;
 }
 
 async function getData(props: Props) {
@@ -96,6 +98,29 @@ async function getData(props: Props) {
   } as const;
 }
 
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const {leetcode,github} = parse(props)
+  const data = await getData(props)
+  if(!data.user){
+    return {}
+  }
+  const imgurl = new URLSearchParams({
+    avatar: data.user.avatar,
+    github: data.user.totalContributions.toString(),
+    lc: data.user.totalSubmissions.toString(),
+    name: data.user.name,
+  }); 
+
+  return {
+    metadataBase: new URL(BASE_URL),
+    openGraph :{
+      title: `${data.user.name}'s LeetCode and GitHub comparison`,
+      description: `Compare the coding activity of ${data.user.name} on LeetCode and GitHub.`,
+      images: [ {url:`${BASE_URL}/api/og/compare?${imgurl.toString()}`}]
+    }
+  }
+}
+
 
 export default async function Page(props: Props) {
   let github: string;
@@ -121,11 +146,57 @@ export default async function Page(props: Props) {
     lc: pageData.user.totalSubmissions.toString(),
     name: pageData.user.name,
   });
+
+  const txt = getRatioText({
+    submissions: pageData.user.totalSubmissions,
+    commits: pageData.user.totalContributions,
+    displayName: pageData.user.name,
+  })
   return (
-    <div>
+    <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen">
+      <div className="flex flex-col py-24 items-start justify-start relative">
+      <div id="profile" className="flex flex-col items-center justify-start relative">
+        <div  className="flex flex-col items-start h-full px-4 py-2">
+        <img
+          src={`https://avatars.githubusercontent.com/${github}`}
+          width="100"
+          height="100"
+          alt="avatar"
+          style={{
+            width: "150px",
+            height: "150px",
+            borderRadius: "50%",
+          }}
+        />
+        </div>
+          <div className="flex flex-col p items-start text-[18px] font-medium ">
+          <Link
+          href={`https://leetcode.com/u/${pageData.user.lc_id}`}
+          className="inline-flex items-center justify-center py-3 hover:underline"
+          prefetch={false}
+        >
+          <LeetCodeIcon className="mx-2 w-6 h-6 "/>
+          {pageData.user.lc_id}
+        </Link>
+          <Link
+          href={`https://github.com/${pageData.user.github_id}/`}
+          className="inline-flex items-center justify-center py-2 hover:underline "
+          prefetch={false}
+        >
+          <GithubIcon className="mx-2"/>
+          {pageData.user.github_id}
+        </Link>
+        
+          </div>
+      </div>
+      </div>
+      <div className="flex justify-center items-center min-h-screen p-6">
       <CompareBox
-        src={`http://localhost:3001/api/og/compare?${imgurl.toString()}`}
+        src={`${BASE_URL}/api/og/compare?${imgurl.toString()}`}
+        txt={txt}
       />
-    </div>
+      </div>
+      </div>
+
   );
 }

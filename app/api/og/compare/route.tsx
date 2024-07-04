@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { GithubIcon, LeetCodeIcon } from "../../../../components/ui/icons";
 import { GitTweetBars } from "@/components/GitLeetBar";
+import { getText } from "@/lib/utils";
 export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
@@ -15,9 +16,11 @@ export async function GET(req: NextRequest) {
   }
   const commits = Number(github);
   const solved = Number(lc);
-  const txt = `${name} spends ${Math.round(
-    (commits / solved) * 100
-  )}% more time pushing code than solving DSA`;
+  const txt = getText({
+    submission: solved,
+    commits: commits,
+    displayName: name,
+  })
   const UserMetadata = () => (
     <div
       style={{
@@ -127,6 +130,7 @@ export async function GET(req: NextRequest) {
           <span
             style={{
               fontSize: "35px",
+              fontWeight: "medium",
             }}
           >
             {txt}
@@ -154,123 +158,4 @@ export async function GET(req: NextRequest) {
       height: 630,
     }
   );
-  // return new ImageResponse ((
-  //   <div style={{
-  //     width: 1200,
-  //     height: 630,
-  //     display: 'flex',
-  //     justifyContent: "space-between",
-  //     alignItems: "center",
-  //     padding: "40px",
-  //     fontSize: '25px',
-  //     backgroundColor: 'hsl(240, 4%, 10%)',
-  //   }}>
-  //     <div style={{
-  //       display: 'flex',
-  //       alignItems: 'center',
-  //       justifyContent: 'space-between',
-  //       width: '100%'
-  //     }}>
-  //       <div id="data" style={{
-  //         display: 'flex',
-  //         alignItems: 'center',
-  //       }}>
-  //         <div style={{
-  //           display: 'flex',
-  //           flexDirection: 'column',
-  //           alignItems: 'center',
-  //           justifyContent: 'center'
-  //         }}>
-  //           <div style={{
-  //             display: 'flex',
-  //             height: '5rem',
-  //             width: '5rem',
-  //             borderRadius: '50%',
-  //             overflow: 'hidden'
-  //           }}>
-  //             <img
-  //               src={avatar}
-  //               alt={name}
-  //               style={{
-  //                 width: '100%',
-  //                 height: '100%',
-  //                 objectFit: 'cover'
-  //               }}
-  //             />
-  //           </div>
-  //         </div>
-  //         <div style={{
-  //           display: 'flex',
-  //           flexDirection: 'column',
-  //           marginLeft: '1rem'
-  //         }}>
-  //           <h1 style={{
-  //             display: 'flex',
-  //             fontSize: '1.25rem',
-  //             fontWeight: '600',
-  //             margin: '0 0 0.5rem 0'
-  //           }}>{name}</h1>
-  //           <div style={{
-  //             display: 'flex',
-  //             alignItems: 'center',
-  //             fontSize: '0.875rem',
-  //             color: 'hsl(240, 5%, 25%)',
-  //             marginBottom: '0.25rem'
-  //           }}>
-  //             <GithubIcon style={{ width: '1rem', height: '1rem', marginRight: '0.25rem' }} />
-  //             <span>{`${github} commits`}</span>
-  //           </div>
-  //           <div style={{
-  //             display: 'flex',
-  //             alignItems: 'center',
-  //             fontSize: '0.875rem',
-  //             color: 'hsl(240, 5%, 25%)'
-  //           }}>
-  //             <LeetCodeIcon style={{ width: '1rem', height: '1rem', marginRight: '0.25rem' }} />
-  //             <span>{`${lc} solved`}</span>
-  //           </div>
-  //         </div>
-  //       </div>
-  //       <div id="bars" style={{
-  //         display: 'flex',
-  //         alignItems: 'center',
-  //         marginTop: '1rem'
-  //       }}>
-  //         <div style={{
-  //           display: 'flex',
-  //           flexDirection: 'column',
-  //           padding: '1rem',
-  //           alignItems: 'center',
-  //           justifyContent: 'flex-end',
-  //           height: '8rem'
-  //         }}>
-  //           <GithubIcon style={{ width: '1.5rem', height: '1.5rem', marginBottom: '0.25rem', color: 'hsl(240, 0%, 90%)' }} />
-  //           <div id="ghbar" style={{
-  //             width: '2rem',
-  //             height: '6rem',
-  //             backgroundColor: '#22c55e'
-  //           }} />
-  //         </div>
-  //         <div style={{
-  //           display: 'flex',
-  //           flexDirection: 'column',
-  //           alignItems: 'center',
-  //           padding: '1rem',
-  //           justifyContent: 'flex-end',
-  //           height: '8rem'
-  //         }}>
-  //           <LeetCodeIcon style={{ width: '1.5rem', height: '1.5rem', marginBottom: '0.25rem', color: 'hsl(240, 0%, 90%)' }} />
-  //           <div id="lcbar" style={{
-  //             width: '2rem',
-  //             height: '1.5rem',
-  //             backgroundColor: '#3b82f6'
-  //           }} />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // // </div>
-  //  ),{
-
-  // })
 }

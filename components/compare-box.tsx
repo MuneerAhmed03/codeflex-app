@@ -8,16 +8,20 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { GithubIcon, LeetCodeIcon, CopyIcon} from "./ui/icons"
+import Link from "next/link"
 import { TwitterLogoIcon } from "@radix-ui/react-icons"
-import { UserSchema } from "@/actions/types"
 
 export function CompareBox(
   props: {
+    txt :string
     src : string;
   }
 ) {
+  const queryParams = new URLSearchParams({
+    text: props.txt,
+  })
   return (
-    <div className="flex justify-center items-center min-h-screen">
+
     <Card className="max-w-2xl p-4">
     <img
           src={props.src}
@@ -28,23 +32,26 @@ export function CompareBox(
           className="aspect-[2/1] w-[100vw] object-cover sm:h-[270px] md:w-[516px]"
         />
 
-      <p className="mt-4 text-sm">@fabpot spends 3017% more time coding than tweeting</p>
+      <p className="mt-4 text-sm">{props.txt}</p>
       
       <Separator className="my-4" />
       
       <div className="flex items-center justify-between mt-4">
-        <Button variant="outline">Reload</Button>
         <Button variant="outline">
           <CopyIcon className="w-4 h-4 mr-2" />
           Copy Image
         </Button>
-        <Button>
-          <TwitterLogoIcon className="w-4 h-4 mr-2" />
+        <Link
+          href={"https://twitter.com/intent/tweet?" + queryParams.toString()}
+          className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          prefetch={false}
+        >
+          <TwitterLogoIcon className="mr-2 h-4 w-4" />
           Tweet
-        </Button>
+        </Link>
       </div>
     </Card>
-  </div>
+
   )
 }
 
