@@ -1,15 +1,17 @@
 import { CompareBox } from "@/components/compare-box";
 import { fetchGithubPage } from "@/lib/github";
 import { userSchema } from "@/lib/utils";
-import { lcData,LeetcodeResponse } from "@/actions/types";
-import Link from "next/link"
+import { lcData, LeetcodeResponse } from "@/actions/types";
+import Link from "next/link";
 import { GithubIcon, LeetCodeIcon } from "@/components/ui/icons";
 import { fetchLeetCode } from "@/lib/lc";
 import { Metadata } from "next";
 
 export const runtime = "edge";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+const BASE_URL = process.env.NODE_ENV
+  ? "https://codeflex.pages.dev"
+  : "http://localhost:3000";
 type Props = {
   searchParams: {
     leetcode: string;
@@ -24,7 +26,7 @@ function parse(props: Props) {
   };
 }
 
-function  getRatioText(input: {
+function getRatioText(input: {
   submissions: number;
   commits: number;
   displayName: string;
@@ -45,14 +47,18 @@ function  getRatioText(input: {
     return `${displayName}'s life is perfectly balanced, as all things should be`;
   }
 
-  const percentageTweets = Math.abs((submissions / commits) * 100 - 100).toFixed();
-  const percentageCommits = Math.abs((commits / submissions) * 100 - 100).toFixed();
+  const percentageTweets = Math.abs(
+    (submissions / commits) * 100 - 100
+  ).toFixed();
+  const percentageCommits = Math.abs(
+    (commits / submissions) * 100 - 100
+  ).toFixed();
   const txt =
     percentageCommits == percentageTweets
       ? `${displayName} spends equal time tweeting and coding`
       : submissions > commits
-        ? `${displayName} spends ${percentageTweets}% more time grinding LeetCode than pushing code`
-        : `${displayName} spends ${percentageCommits}% more time pushing code than grinding LeetCode`;
+      ? `${displayName} spends ${percentageTweets}% more time grinding LeetCode than pushing code`
+      : `${displayName} spends ${percentageCommits}% more time pushing code than grinding LeetCode`;
   return txt;
 }
 
@@ -80,16 +86,19 @@ async function getData(props: Props) {
     } as const;
   }
 
-  const leetCodeData: lcData = leetcodeData && !('status' in leetcodeData) ? leetcodeData : {
-    username: "",
-    githubUrl: "",
-    totalSub: 0,
-  };
+  const leetCodeData: lcData =
+    leetcodeData && !("status" in leetcodeData)
+      ? leetcodeData
+      : {
+          username: "",
+          githubUrl: "",
+          totalSub: 0,
+        };
 
   const user = userSchema({
     totalContributions: githubData.totalContributions,
     github: githubData.metadata,
-    leetCode: leetCodeData
+    leetCode: leetCodeData,
   });
 
   return {
@@ -99,28 +108,34 @@ async function getData(props: Props) {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const {leetcode,github} = parse(props)
-  const data = await getData(props)
-  if(!data.user){
-    return {}
+  const { leetcode, github } = parse(props);
+  const data = await getData(props);
+  if (!data.user) {
+    return {};
   }
   const imgurl = new URLSearchParams({
     avatar: data.user.avatar,
     github: data.user.totalContributions.toString(),
     lc: data.user.totalSubmissions.toString(),
     name: data.user.name,
-  }); 
+  });
 
   return {
-    metadataBase: new URL(BASE_URL),
-    openGraph :{
+    metadataBase : new URL(BASE_URL),
+    openGraph: {
       title: `${data.user.name}'s LeetCode and GitHub comparison`,
       description: `Compare the coding activity of ${data.user.name} on LeetCode and GitHub.`,
-      images: [ {url:`${BASE_URL}/api/og/compare?${imgurl.toString()}`}]
-    }
-  }
+      type: "website",
+      url: `https://codeflex.pages.dev/compare?leetcode=${leetcode}&github=${github}`,
+      images: [{ url: `${BASE_URL}/api/og/compare?${imgurl.toString()}` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${data.user.name}'s LeetCode and GitHub comparison`,
+      description: `Compare the coding activity of ${data.user.name} on LeetCode and GitHub.`,
+    },
+  };
 }
-
 
 export default async function Page(props: Props) {
   let github: string;
@@ -151,52 +166,57 @@ export default async function Page(props: Props) {
     submissions: pageData.user.totalSubmissions,
     commits: pageData.user.totalContributions,
     displayName: pageData.user.name,
-  })
+  });
   return (
-    <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen">
-      <div className="flex flex-col py-24 items-start justify-start relative">
-      <div id="profile" className="flex flex-col items-center justify-start relative">
-        <div  className="flex flex-col items-start h-full px-4 py-2">
-        <img
-          src={`https://avatars.githubusercontent.com/${github}`}
-          width="100"
-          height="100"
-          alt="avatar"
-          style={{
-            width: "150px",
-            height: "150px",
-            borderRadius: "50%",
-          }}
-        />
-        </div>
-          <div className="flex flex-col p items-start text-[18px] font-medium ">
-          <Link
-          href={`https://leetcode.com/u/${pageData.user.lc_id}`}
-          className="inline-flex items-center justify-center py-3 hover:underline"
-          prefetch={false}
-        >
-          <LeetCodeIcon className="mx-2 w-6 h-6 "/>
-          {pageData.user.lc_id}
-        </Link>
-          <Link
-          href={`https://github.com/${pageData.user.github_id}/`}
-          className="inline-flex items-center justify-center py-2 hover:underline "
-          prefetch={false}
-        >
-          <GithubIcon className="mx-2"/>
-          {pageData.user.github_id}
-        </Link>
-        
+    <>
+      <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen">
+        <div className="flex flex-col py-24 items-start justify-start relative">
+          <div
+            id="profile"
+            className="flex md:flex-col flex-row items-center justify-start relative"
+          >
+            <div className="flex flex-col items-start h-full px-4 py-2">
+              <img
+                src={`https://avatars.githubusercontent.com/${github}`}
+                width="100"
+                height="100"
+                alt="avatar"
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  borderRadius: "50%",
+                }}
+              />
+            </div>
+            <div className="flex flex-col p items-start text-[18px] font-medium ">
+              <Link
+                href={`https://leetcode.com/u/${pageData.user.lc_id}`}
+                className="inline-flex items-center justify-center py-3 hover:underline"
+                prefetch={false}
+              >
+                <LeetCodeIcon className="mx-2 w-6 h-6 " />
+                {pageData.user.lc_id}
+              </Link>
+              <Link
+                href={`https://github.com/${pageData.user.github_id}/`}
+                className="inline-flex items-center justify-center py-2 hover:underline "
+                prefetch={false}
+              >
+                <GithubIcon className="mx-2" />
+                {pageData.user.github_id}
+              </Link>
+            </div>
           </div>
+        </div>
+        <div className="flex justify-center items-center min-h-screen p-6">
+          <CompareBox
+            src={`${BASE_URL}/api/og/compare?${imgurl.toString()}`}
+            txt={txt}
+            github={github}
+            leetCode={leetcode}
+          />
+        </div>
       </div>
-      </div>
-      <div className="flex justify-center items-center min-h-screen p-6">
-      <CompareBox
-        src={`${BASE_URL}/api/og/compare?${imgurl.toString()}`}
-        txt={txt}
-      />
-      </div>
-      </div>
-
+    </>
   );
 }
