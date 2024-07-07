@@ -42,8 +42,12 @@ export function getText(input: {
   if (submission === commits) {
     return `${displayName}'s life is perfectly balanced, as all things should be`;
   }
-  const percentageSub = ((submission/(commits + submission))*100).toFixed();
-  const percentageCommit = ((commits/(commits + submission))*100).toFixed();
+  const percentageSub = Math.abs(
+    (submission / commits) * 100 - 100
+  ).toFixed();
+  const percentageCommit = Math.abs(
+    (commits / submission) * 100 - 100
+  ).toFixed();
   return generateTag(
     {
       name:displayName,

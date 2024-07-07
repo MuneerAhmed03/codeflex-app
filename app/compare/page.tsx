@@ -26,7 +26,7 @@ function parse(props: Props) {
   };
 }
 
-function getRatioText(input: {
+function  getRatioText(input: {
   submissions: number;
   commits: number;
   displayName: string;
@@ -47,20 +47,21 @@ function getRatioText(input: {
     return `${displayName}'s life is perfectly balanced, as all things should be`;
   }
 
-  const percentageTweets = Math.abs(
+  const percentageSub = Math.abs(
     (submissions / commits) * 100 - 100
   ).toFixed();
   const percentageCommits = Math.abs(
     (commits / submissions) * 100 - 100
   ).toFixed();
   const txt =
-    percentageCommits == percentageTweets
+    percentageCommits == percentageSub
       ? `${displayName} spends equal time tweeting and coding`
       : submissions > commits
-      ? `${displayName} spends ${percentageTweets}% more time grinding LeetCode than pushing code`
+      ? `${displayName} spends ${percentageSub}% more time grinding LeetCode than pushing code`
       : `${displayName} spends ${percentageCommits}% more time pushing code than grinding LeetCode`;
   return txt;
 }
+  
 
 async function getData(props: Props) {
   const { leetcode, github } = parse(props);

@@ -4,6 +4,12 @@ compatibility_date = "2024-06-20"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
 
+mode = smart
+
+[[d1_databases]]
+binding = "DB"
+database_name = "codeflex-d1"
+database_id = "b630ca67-7a63-48bd-9a5e-a2afc10d56a9"
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Pages Function, running it closer to your back-end infrastructure
 # rather than the end user may result in better performance.
