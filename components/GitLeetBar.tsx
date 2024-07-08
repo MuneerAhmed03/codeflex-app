@@ -1,6 +1,4 @@
-import { UserSchema } from "@/actions/types";
 import { LeetCodeIcon, GithubIcon } from "./ui/icons";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 export function GitTweetBars(props: {
   commits:number;
