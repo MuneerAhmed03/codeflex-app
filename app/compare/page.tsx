@@ -1,7 +1,7 @@
 import { CompareBox } from "@/components/compare-box";
 import { fetchGithubPage } from "@/lib/github";
 import { userSchema } from "@/lib/utils";
-import { lcData, LeetcodeResponse } from "@/actions/types";
+import { lcData, UserSchema } from "@/actions/types";
 import Link from "next/link";
 import { GithubIcon, LeetCodeIcon } from "@/components/ui/icons";
 import { fetchLeetCode } from "@/lib/lc";
@@ -26,7 +26,7 @@ function parse(props: Props) {
   };
 }
 
-function  getRatioText(input: {
+function getRatioText(input: {
   submissions: number;
   commits: number;
   displayName: string;
@@ -47,9 +47,7 @@ function  getRatioText(input: {
     return `${displayName}'s life is perfectly balanced, as all things should be`;
   }
 
-  const percentageSub = Math.abs(
-    (submissions / commits) * 100 - 100
-  ).toFixed();
+  const percentageSub = Math.abs((submissions / commits) * 100 - 100).toFixed();
   const percentageCommits = Math.abs(
     (commits / submissions) * 100 - 100
   ).toFixed();
@@ -61,7 +59,6 @@ function  getRatioText(input: {
       : `${displayName} spends ${percentageCommits}% more time pushing code than grinding LeetCode`;
   return txt;
 }
-  
 
 async function getData(props: Props) {
   const { leetcode, github } = parse(props);
@@ -108,6 +105,23 @@ async function getData(props: Props) {
   } as const;
 }
 
+async function fetchData(props: Props) {
+  const { leetcode, github } = parse(props);
+  try {
+    const response = await fetch(
+      "https://codeflex-db.muneerahmed00916.workers.dev/user?" +
+        new URLSearchParams({ lc: leetcode, gh: github }).toString()
+    );
+    const data: UserSchema[] = await response.json();
+    const user = data[0];
+    console.log("called db");
+    return user;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { leetcode, github } = parse(props);
   const data = await getData(props);
@@ -122,7 +136,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   });
 
   return {
-    metadataBase : new URL(BASE_URL),
+    metadataBase: new URL(BASE_URL),
     openGraph: {
       title: `${data.user.name}'s LeetCode and GitHub comparison`,
       description: `Compare the coding activity of ${data.user.name} on LeetCode and GitHub.`,
@@ -148,26 +162,52 @@ export default async function Page(props: Props) {
   } catch (error) {
     return <div>Invalid URL {JSON.stringify(props.searchParams)}</div>;
   }
-  const pageData = await getData(props);
-  if (!pageData.user) {
-    return (
-      <div>
-        <h1> {pageData.status}</h1>
-      </div>
-    );
-  }
-  const imgurl = new URLSearchParams({
-    avatar: pageData.user.avatar,
-    github: pageData.user.totalContributions.toString(),
-    lc: pageData.user.totalSubmissions.toString(),
-    name: pageData.user.name,
-  });
+  let github_id = "";
+  let lc_id = "";
+  let imageUrl = "";
+  let txt = "";
 
-  const txt = getRatioText({
-    submissions: pageData.user.totalSubmissions,
-    commits: pageData.user.totalContributions,
-    displayName: pageData.user.name,
-  });
+  const response = await fetchData(props);
+  if (response) {
+    github_id = response.github_id;
+    lc_id = response.lc_id;
+    imageUrl = new URLSearchParams({
+      avatar: response.avatar,
+      github: response.totalContributions.toString(),
+      lc: response.totalSubmissions.toString(),
+      name: response.name,
+    }).toString();
+    console.log("db : ", imageUrl);
+    txt = getRatioText({
+      submissions: response.totalSubmissions,
+      commits: response.totalContributions,
+      displayName: response.name,
+    });
+  } else {
+    const pageData = await getData(props);
+    if (!pageData.user) {
+      return (
+        <div>
+          <h1> {pageData.status}</h1>
+        </div>
+      );
+    }
+    github_id = pageData.user.github_id;
+    lc_id = pageData.user.lc_id;
+    imageUrl = new URLSearchParams({
+      avatar: pageData.user.avatar,
+      github: pageData.user.totalContributions.toString(),
+      lc: pageData.user.totalSubmissions.toString(),
+      name: pageData.user.name,
+    }).toString();
+
+    txt = getRatioText({
+      submissions: pageData.user.totalSubmissions,
+      commits: pageData.user.totalContributions,
+      displayName: pageData.user.name,
+    });
+  }
+  console.log("url : ", imageUrl);
   return (
     <>
       <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen">
@@ -191,27 +231,27 @@ export default async function Page(props: Props) {
             </div>
             <div className="flex flex-col p items-start text-[18px] font-medium ">
               <Link
-                href={`https://leetcode.com/u/${pageData.user.lc_id}`}
+                href={`https://leetcode.com/u/${lc_id}`}
                 className="inline-flex items-center justify-center py-3 hover:underline"
                 prefetch={false}
               >
                 <LeetCodeIcon className="mx-2 w-6 h-6 " />
-                {pageData.user.lc_id}
+                {lc_id}
               </Link>
               <Link
-                href={`https://github.com/${pageData.user.github_id}/`}
+                href={`https://github.com/${github_id}/`}
                 className="inline-flex items-center justify-center py-2 hover:underline "
                 prefetch={false}
               >
                 <GithubIcon className="mx-2" />
-                {pageData.user.github_id}
+                {github_id}
               </Link>
             </div>
           </div>
         </div>
         <div className="flex justify-center items-center min-h-screen p-6">
           <CompareBox
-            src={`${BASE_URL}/api/og/compare?${imgurl.toString()}`}
+            src={`${BASE_URL}/api/og/compare?${imageUrl}`}
             txt={txt}
             github={github}
             leetCode={leetcode}

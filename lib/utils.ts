@@ -1,7 +1,5 @@
 import { GithubMetadata, UserSchema, lcData } from "@/actions/types";
-import { LeetCodeIcon } from "@/components/ui/icons";
-import { type ClassValue, clsx } from "clsx";
-import { Verified } from "lucide-react";
+import { type ClassValue, clsx } from "clsx";;
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -16,14 +14,14 @@ export function userSchema(props: {
   return {
     name: props.github.name ?? props.leetCode.username,
     avatar: props.github.avatar_url,
-    github_id: props.github.login,
-    lc_id: props.leetCode.username,
+    github_id: props.github.login.toLowerCase(),
+    lc_id: props.leetCode.username.toLowerCase(),
     lc_github: props.leetCode.githubUrl,
     totalContributions: props.totalContributions,
     totalSubmissions: props.leetCode.totalSub,
     Verified:
-      props.github.login === props.leetCode.username ||
-      props.github.login === props.leetCode.githubUrl,
+      props.github.login === props.leetCode.username ? 1: 0 ||
+      props.github.login === props.leetCode.githubUrl?.split("https://github.com/")[1] ? 1 : 0,
   };
 }
 

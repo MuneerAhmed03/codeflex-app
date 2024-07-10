@@ -91,5 +91,5 @@ export type UserSchema  ={
   lc_github: string  |null;
   totalContributions: number;
   totalSubmissions: number;
-  Verified: boolean;
+  Verified: number;
 }
