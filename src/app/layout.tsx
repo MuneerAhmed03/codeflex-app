@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import {AppBar} from "@/components/app-bar";
+import { GridSmallBackgroundDemo } from "@/components/background";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
       <AppBar/>
+  <div className="pattern-dots pattern-blue-500 pattern-bg-white 
+  pattern-size-6 pattern-opacity-20"></div>
       {children}</body>
     </html>
   );

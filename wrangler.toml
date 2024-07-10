@@ -11,6 +11,7 @@ pages_build_output_dir = ".vercel/output/static"
 # [placement]
 # mode = "smart"
 
+<<<<<<< Updated upstream
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Docs:
 # - https://developers.cloudflare.com/pages/functions/bindings/#environment-variables
@@ -85,3 +86,9 @@ pages_build_output_dir = ".vercel/output/static"
 # [[env.production.kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"
 # id = "<PRODUCTION_NAMESPACE_ID>"
+=======
+#[[d1_databases]]
+#binding = "DB"
+#database_name = "codeflex-d1"
+#database_id = "b630ca67-7a63-48bd-9a5e-a2afc10d56a9"
+>>>>>>> Stashed changes

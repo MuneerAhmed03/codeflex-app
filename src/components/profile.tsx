@@ -41,10 +41,38 @@ export function Profile() {
         <CardDescription>Enter your credentials to continue.</CardDescription>
       </CardHeader>
       <CardContent>
+<<<<<<< Updated upstream:components/profile.tsx
         <div className="space-y-4">
         <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <CodeIcon className="w-5 h-5 text-muted-foreground" />
+=======
+        <form
+
+          onSubmit={(e) => {
+            e.preventDefault();
+            console.log("Submitting");
+            const lwrGh = githubref.current?.value;
+            const lwrLc = leetcodeUrl;
+            if (!lwrGh || !lwrLc) {
+              return;
+            }
+            router.push(`/compare?github=${lwrGh}&leetcode=${lwrLc}`);
+          }}
+        >
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <CodeIcon className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <Input
+                type="text"
+                required={true}
+                placeholder=" LeetCode Username"
+                onChange={handleLeetCodeChange}
+                className="pl-10"
+              />
+>>>>>>> Stashed changes:src/components/profile.tsx
             </div>
             <Input type="text" placeholder=" LeetCode Username" onChange={handleLeetCodeChange} className="pl-10" />
           </div>

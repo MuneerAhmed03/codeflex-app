@@ -35,18 +35,6 @@ export interface lcData{
   githubUrl: string | null;
   totalSub: number;
 }
-// export interface submitStats {
-//   data: {
-//     matchedUser: {
-//       submitStats: {
-//         acSubmissionNum: ACSubmissionNum[];
-//       };
-//     };
-//   };
-//   errors?: Array<{ message: string }>;
-// }
-
-
 
 export type GithubMetadata = {
   login: string;
@@ -91,5 +79,5 @@ export type UserSchema  ={
   lc_github: string  |null;
   totalContributions: number;
   totalSubmissions: number;
-  Verified: boolean;
+  Verified: number;
 }
