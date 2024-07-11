@@ -93,3 +93,8 @@ export type UserSchema  ={
   totalSubmissions: number;
   Verified: number;
 }
+
+export type leaderboard = {
+  grinders: UserSchema[];
+  contributors: UserSchema[];
+}

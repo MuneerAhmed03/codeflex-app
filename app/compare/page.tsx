@@ -210,11 +210,11 @@ export default async function Page(props: Props) {
   console.log("url : ", imageUrl);
   return (
     <>
-      <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen">
-        <div className="flex flex-col py-24 items-start justify-start relative">
+      <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen -mt-8">
+        <div className="flex flex-col justify-center items-center min-h-screen p-6  ">
           <div
             id="profile"
-            className="flex md:flex-col flex-row items-center justify-start relative"
+            className="flex flex-row items-center justify-start relative"
           >
             <div className="flex flex-col items-start h-full px-4 py-2">
               <img
@@ -230,6 +230,14 @@ export default async function Page(props: Props) {
               />
             </div>
             <div className="flex flex-col p items-start text-[18px] font-medium ">
+            <Link
+                href={`https://github.com/${github_id}/`}
+                className="inline-flex items-center justify-center py-2 hover:underline "
+                prefetch={false}
+              >
+                <GithubIcon className="mx-2" />
+                {github_id}
+              </Link>
               <Link
                 href={`https://leetcode.com/u/${lc_id}`}
                 className="inline-flex items-center justify-center py-3 hover:underline"
@@ -238,14 +246,7 @@ export default async function Page(props: Props) {
                 <LeetCodeIcon className="mx-2 w-6 h-6 " />
                 {lc_id}
               </Link>
-              <Link
-                href={`https://github.com/${github_id}/`}
-                className="inline-flex items-center justify-center py-2 hover:underline "
-                prefetch={false}
-              >
-                <GithubIcon className="mx-2" />
-                {github_id}
-              </Link>
+
             </div>
           </div>
         </div>

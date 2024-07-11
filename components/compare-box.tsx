@@ -1,9 +1,14 @@
+"use client"
+import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { CopyIcon} from "./ui/icons"
 import Link from "next/link"
+import { ClipboardItem } from "clipboard-polyfill"
 import { TwitterLogoIcon } from "@radix-ui/react-icons"
+
+
 export function CompareBox(
   props: {
     txt :string
@@ -15,9 +20,9 @@ export function CompareBox(
   const queryParams = new URLSearchParams({
     url: `https://codeflex.pages.dev/compare?leetcode=${props.leetCode}&github=${props.github}`,
   })
-  console.log(props.src)
+  const [success, setSuccess] = useState(false)
   return (
-    <Card className="max-w-2xl p-4">
+    <Card className="bg-card max-w-2xl p-4">
     <img
           src={props.src}
           width={300}
@@ -33,9 +38,22 @@ export function CompareBox(
       <Separator className="my-4" />
       
       <div className="flex items-center justify-between mt-4">
-        <Button variant="outline">
+        <Button variant="outline" onClick={async ()=>{
+          const data = await fetch(props.src);
+          console.log(data);
+          const response = await data.blob();
+          if (!response) {
+            return;
+          }
+          const item = new ClipboardItem({ "image/png": response });
+          await navigator.clipboard.write([item]);
+          setSuccess(true);
+          setTimeout(() => {
+            setSuccess(false);
+          }, 2000);
+        }}>
           <CopyIcon className="w-4 h-4 mr-2" />
-          Copy Image
+          {success ? "Copied!" : "Copy Image"}
         </Button>
         <Link
           href={"https://twitter.com/intent/tweet?" + queryParams.toString()}

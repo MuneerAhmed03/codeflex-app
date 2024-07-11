@@ -32,7 +32,7 @@ export function Profile() {
     setLeetCodeUrl(e.target.value);
   };
   return (
-    <Card className="w-full max-w-md">
+    <Card className="bg-card w-full max-w-md">
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
         <CardDescription>Enter your credentials to continue.</CardDescription>
