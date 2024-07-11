@@ -2,8 +2,10 @@
 
 import { leaderboard } from "@/actions/types";
 
+const DB_URL = process.env.DB_URL!
+
 export default async function getLeaderBoard(){
-    const response = await fetch('https://codeflex-db.muneerahmed00916.workers.dev/lb');
+    const response = await fetch(`${DB_URL}/lb`);
     if (!response.ok) {
         console.error(`Failed to fetch leaderboard ${response.status}`);
         return;

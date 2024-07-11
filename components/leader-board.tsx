@@ -9,22 +9,22 @@ export function LeaderBoard(props : {
     table : string; 
 }) {
   return (
-    <Card className="bg-card w-full max-w-2xl z-[-1]">
+    <Card className="bg-card w-full max-w-md mx-auto z-[-1] lg:my-0 my-5">
       <CardHeader>
         <CardTitle>{props.table ==="lc" ? `Top Grinders` : `Top Contributers`}</CardTitle>
       </CardHeader>
-      <CardContent className="max-h-[400px] overflow-y-auto">
+      <CardContent className="max-h-[400px] overflow-x-hidden overflow-y-auto">
         <Table>
           <TableHeader className="sticky top-0 bg-background bg-opacity-100">
             <TableRow>
               <TableHead className=" w-[50px]">#</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead className="text-right">{props.table==="lc" ? `Submission` : `Commits`}</TableHead>
+              <TableHead className="text-right ">{props.table==="lc" ? `Submission` : `Commits`}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {props.users.map((user, index) => (
-              <TableRow>
+              <TableRow key={index.toString()}>
               <TableCell>{index +1}</TableCell>
               <TableCell className="flex items-center gap-2">
                 <Avatar className="w-8 h-8">

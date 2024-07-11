@@ -29,18 +29,18 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen ">
         <AppBar />
         <div className="pattern-background">
           
           {children}
 
           {leaderboard && (
-            <div className="flex flex-row justify-between mt-20 mx-40">
-              <div className="w-full/2">
+            <div className="flex lg:flex-row max-w-full flex-col items-center justify-around my-20 ">
+              <div className="w-[334px]">
                 <LeaderBoard users={leaderboard.grinders} table="lc" />
               </div>
-              <div className="w-full/2">
+              <div className="w-[334px]">
                 <LeaderBoard users={leaderboard.contributors} table="gh" />
               </div>
             </div>

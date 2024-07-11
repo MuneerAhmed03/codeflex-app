@@ -5,10 +5,14 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { CopyIcon} from "./ui/icons"
 import Link from "next/link"
-import { ClipboardItem } from "clipboard-polyfill"
+import { ClipboardItem , ClipboardItemInterface } from "clipboard-polyfill"
 import { TwitterLogoIcon } from "@radix-ui/react-icons"
+import { useQuery } from "@tanstack/react-query"
 
 
+const BASE_URL = process.env.NODE_ENV==="production"
+  ? process.env.NEXT_PUBLIC_BASE_URL!
+  : process.env.NEXT_PUBLIC_LOCAL_URL!;
 export function CompareBox(
   props: {
     txt :string
@@ -18,12 +22,49 @@ export function CompareBox(
   },
 ) {
   const queryParams = new URLSearchParams({
-    url: `https://codeflex.pages.dev/compare?leetcode=${props.leetCode}&github=${props.github}`,
+    url: `${BASE_URL}/compare?leetcode=${props.leetCode}&github=${props.github}`,
   })
   const [success, setSuccess] = useState(false)
+  const handleCopy =() => {
+    const imgTag = document.getElementById('og') as HTMLImageElement | null;
+
+    if (imgTag) {
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Set the canvas dimensions to match the image
+        canvas.width = imgTag.naturalWidth;
+        canvas.height = imgTag.naturalHeight;
+
+        // Draw the image onto the canvas
+        ctx.drawImage(imgTag, 0, 0);
+
+        // Convert the canvas to a blob
+        canvas.toBlob((blob) => {
+          if (blob) {
+
+            const item = new ClipboardItem({ 'image/png': blob });
+
+            // Write the clipboard item to the clipboard
+            navigator.clipboard.write([item]).then(() => {
+              console.log('Image copied to clipboard.');
+            }).catch((error) => {
+              console.error('Error copying image to clipboard:', error);
+            });
+          }
+        }, 'image/png');
+    } else {
+      console.log('Image tag with the specified ID was not found.');
+    }
+  };
+  }
+
   return (
     <Card className="bg-card max-w-2xl p-4">
     <img
+      id="og"
           src={props.src}
           width={300}
           height={200}
@@ -38,22 +79,9 @@ export function CompareBox(
       <Separator className="my-4" />
       
       <div className="flex items-center justify-between mt-4">
-        <Button variant="outline" onClick={async ()=>{
-          const data = await fetch(props.src);
-          console.log(data);
-          const response = await data.blob();
-          if (!response) {
-            return;
-          }
-          const item = new ClipboardItem({ "image/png": response });
-          await navigator.clipboard.write([item]);
-          setSuccess(true);
-          setTimeout(() => {
-            setSuccess(false);
-          }, 2000);
-        }}>
+        <Button id="copy" variant="outline" onClick={handleCopy} >
           <CopyIcon className="w-4 h-4 mr-2" />
-          {success ? "Copied!" : "Copy Image"}
+          Copy Image
         </Button>
         <Link
           href={"https://twitter.com/intent/tweet?" + queryParams.toString()}

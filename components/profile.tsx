@@ -32,12 +32,11 @@ export function Profile() {
     setLeetCodeUrl(e.target.value);
   };
   return (
-    <Card className="bg-card w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Enter your credentials to continue.</CardDescription>
+    <Card className="bg-card w-full max-w-md ">
+      <CardHeader className="p-6">
+        <CardTitle>Enter Profile Username</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6 pt-0"> 
         <form
 
           onSubmit={(e) => {

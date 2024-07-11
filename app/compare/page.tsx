@@ -9,9 +9,11 @@ import { Metadata } from "next";
 
 export const runtime = "edge";
 
-const BASE_URL = process.env.NODE_ENV
-  ? "https://codeflex.pages.dev"
-  : "http://localhost:3000";
+const BASE_URL = process.env.NODE_ENV==="production"
+  ? process.env.NEXT_PUBLIC_BASE_URL!
+  : process.env.NEXT_PUBLIC_LOCAL_URL!;
+  console.log(BASE_URL);
+const DB_URL = process.env.DB_URL! 
 type Props = {
   searchParams: {
     leetcode: string;
@@ -109,7 +111,7 @@ async function fetchData(props: Props) {
   const { leetcode, github } = parse(props);
   try {
     const response = await fetch(
-      "https://codeflex-db.muneerahmed00916.workers.dev/user?" +
+      `${DB_URL}/user?` +
         new URLSearchParams({ lc: leetcode, gh: github }).toString()
     );
     const data: UserSchema[] = await response.json();
@@ -141,7 +143,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       title: `${data.user.name}'s LeetCode and GitHub comparison`,
       description: `Compare the coding activity of ${data.user.name} on LeetCode and GitHub.`,
       type: "website",
-      url: `https://codeflex.pages.dev/compare?leetcode=${leetcode}&github=${github}`,
+      url: `${BASE_URL}/compare?leetcode=${leetcode}&github=${github}`,
       images: [{ url: `${BASE_URL}/api/og/compare?${imgurl.toString()}` }],
     },
     twitter: {
@@ -210,21 +212,18 @@ export default async function Page(props: Props) {
   console.log("url : ", imageUrl);
   return (
     <>
-      <div className="flex md:flex-row flex-col justify-between mx-4 min-h-screen -mt-8">
-        <div className="flex flex-col justify-center items-center min-h-screen p-6  ">
+      <div className="flex lg:flex-row flex-col lg:justify-between min-h-screen -mt-8">
+        <div className="flex flex-col justify-center lg:items-center items-start lg:min-h-screen min-h-96 lg:p-6 p-2 ">
           <div
             id="profile"
-            className="flex flex-row items-center justify-start relative"
+            className="flex lg:flex-row flex-col lg:items-center items-start justify-start relative"
           >
-            <div className="flex flex-col items-start h-full px-4 py-2">
+            <div className="flex flex-col items-start h-full py-2 px-2 lg:px-4 lg:py-2">
               <img
                 src={`https://avatars.githubusercontent.com/${github}`}
-                width="100"
-                height="100"
                 alt="avatar"
+                className="lg:w-36 lg:h-36 w-24 h-24 rounded-full"
                 style={{
-                  width: "150px",
-                  height: "150px",
                   borderRadius: "50%",
                 }}
               />
@@ -250,7 +249,7 @@ export default async function Page(props: Props) {
             </div>
           </div>
         </div>
-        <div className="flex justify-center items-center min-h-screen p-6">
+        <div className="flex justify-center items-center lg:min-h-screen px-1 lg:p-6">
           <CompareBox
             src={`${BASE_URL}/api/og/compare?${imageUrl}`}
             txt={txt}

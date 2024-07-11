@@ -5,27 +5,28 @@ export function AppBar() {
   return (
     <header className="flex items-center border justify-between bg-background px-4 py-3 shadow-sm sm:px-6 ">
       <div className="flex items-center gap-4">
-        <Link href="#" className="flex items-center gap-2" prefetch={false}>
-          <MountainIcon className="h-6 w-6" />
-          <span className="text-lg font-semibold">Acme App</span>
+        <Link href="" className="flex items-center gap-2" prefetch={false}>
+          <MountainIcon className="h-6 w-6 " />
+          <span className="text-2xl font-bold hidden md:inline-block">CodeFlex</span>
         </Link>
       </div>
       <div className="flex items-center space-x-4">
         <Link
-          href="#"
+          href="https://github.com/MuneerAhmed03/codeflex"
           className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           prefetch={false}
         >
           <StarIcon className="mr-2 h-4 w-4" />
-          Star on GitHub
+          <span className="hidden md:inline-block">Star on GitHub</span>
         </Link>
         <Link
-          href="#"
+          href="https://twitter.com/intent/follow?screen_name=mun_err"
           className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           prefetch={false}
         >
             <TwitterIcon className="mr-2 h-4 w-4" />  
-            Follow me on X
+            <span className="hidden md:inline-block">Follow me on X</span>
+            
           </Link>
         </div>
     </header>
