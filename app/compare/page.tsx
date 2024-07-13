@@ -9,10 +9,11 @@ import { Metadata } from "next";
 
 export const runtime = "edge";
 
-const BASE_URL = process.env.NODE_ENV==="production"
-  ? process.env.NEXT_PUBLIC_BASE_URL!
-  : process.env.NEXT_PUBLIC_LOCAL_URL!;
-const DB_URL = process.env.DB_URL! 
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.NEXT_PUBLIC_BASE_URL!
+    : process.env.NEXT_PUBLIC_LOCAL_URL!;
+const DB_URL = process.env.DB_URL!;
 type Props = {
   searchParams: {
     leetcode: string;
@@ -99,15 +100,19 @@ async function getData(props: Props) {
     github: githubData.metadata,
     leetCode: leetCodeData,
   });
-//   try{
-//     const post = await fetch(`${DB_URL}/post` ,{
-//     method:`POST`,
-//     body : JSON.stringify(user)
-//   })
-//   console.log(post)
-// }catch(err){
-//     console.log(err);
-//   }
+  // try {
+  //   const post = await fetch(`${DB_URL}/post`, {
+  //     method: `POST`,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(user),
+  //   });
+  //   console.log(post);
+  // } catch (err) {
+  //   console.log(err);
+  // }
+
   return {
     status: "success",
     user,
@@ -214,6 +219,15 @@ export default async function Page(props: Props) {
       commits: pageData.user.totalContributions,
       displayName: pageData.user.name,
     });
+    console.log("body: ", pageData.user);
+    const post = await fetch(`${DB_URL}/post`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(pageData.user),
+    });
+    const responseText = await post.text();
   }
   return (
     <>
@@ -234,7 +248,7 @@ export default async function Page(props: Props) {
               />
             </div>
             <div className="flex flex-col p items-start text-[18px] font-medium ">
-            <Link
+              <Link
                 href={`https://github.com/${github_id}/`}
                 className="inline-flex items-center justify-center py-2 hover:underline "
                 prefetch={false}
@@ -250,7 +264,6 @@ export default async function Page(props: Props) {
                 <LeetCodeIcon className="mx-2 w-6 h-6 " />
                 {lc_id}
               </Link>
-
             </div>
           </div>
         </div>
