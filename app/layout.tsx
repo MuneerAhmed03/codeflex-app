@@ -9,7 +9,7 @@ import { leaderboard } from "@/actions/types";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Code Felx",
+  title: "Code Flex",
   description: "Compare your LeetCode and Github",
 };
 

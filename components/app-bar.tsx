@@ -5,9 +5,8 @@ export function AppBar() {
   return (
     <header className="flex items-center border justify-between bg-background px-4 py-3 shadow-sm sm:px-6 ">
       <div className="flex items-center gap-4">
-        <Link href="" className="flex items-center gap-2" prefetch={false}>
-          <MountainIcon className="h-6 w-6 " />
-          <span className="text-2xl font-bold hidden md:inline-block">CodeFlex</span>
+        <Link href="\" className="flex items-center gap-2" prefetch={false}>
+          <span className="text-2xl font-bold inline-block">CodeFlex</span>
         </Link>
       </div>
       <div className="flex items-center space-x-4">

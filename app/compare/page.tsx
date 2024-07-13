@@ -12,7 +12,6 @@ export const runtime = "edge";
 const BASE_URL = process.env.NODE_ENV==="production"
   ? process.env.NEXT_PUBLIC_BASE_URL!
   : process.env.NEXT_PUBLIC_LOCAL_URL!;
-  console.log(BASE_URL);
 const DB_URL = process.env.DB_URL! 
 type Props = {
   searchParams: {
@@ -100,7 +99,15 @@ async function getData(props: Props) {
     github: githubData.metadata,
     leetCode: leetCodeData,
   });
-
+//   try{
+//     const post = await fetch(`${DB_URL}/post` ,{
+//     method:`POST`,
+//     body : JSON.stringify(user)
+//   })
+//   console.log(post)
+// }catch(err){
+//     console.log(err);
+//   }
   return {
     status: "success",
     user,
@@ -179,7 +186,6 @@ export default async function Page(props: Props) {
       lc: response.totalSubmissions.toString(),
       name: response.name,
     }).toString();
-    console.log("db : ", imageUrl);
     txt = getRatioText({
       submissions: response.totalSubmissions,
       commits: response.totalContributions,
@@ -209,7 +215,6 @@ export default async function Page(props: Props) {
       displayName: pageData.user.name,
     });
   }
-  console.log("url : ", imageUrl);
   return (
     <>
       <div className="flex lg:flex-row flex-col lg:justify-between min-h-screen -mt-8">

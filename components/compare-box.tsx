@@ -29,25 +29,19 @@ export function CompareBox(
     const imgTag = document.getElementById('og') as HTMLImageElement | null;
 
     if (imgTag) {
-      // Create a canvas element
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
       if (ctx) {
-        // Set the canvas dimensions to match the image
         canvas.width = imgTag.naturalWidth;
         canvas.height = imgTag.naturalHeight;
-
-        // Draw the image onto the canvas
         ctx.drawImage(imgTag, 0, 0);
 
-        // Convert the canvas to a blob
         canvas.toBlob((blob) => {
           if (blob) {
 
             const item = new ClipboardItem({ 'image/png': blob });
 
-            // Write the clipboard item to the clipboard
             navigator.clipboard.write([item]).then(() => {
               console.log('Image copied to clipboard.');
             }).catch((error) => {
