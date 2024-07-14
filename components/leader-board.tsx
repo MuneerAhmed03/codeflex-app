@@ -1,4 +1,4 @@
-"use client"
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -13,7 +13,7 @@ export function LeaderBoard(props : {
       <CardHeader>
         <CardTitle>{props.table ==="lc" ? `Top Grinders` : `Top Contributers`}</CardTitle>
       </CardHeader>
-      <CardContent className="max-h-[400px] overflow-x-hidden overflow-y-auto">
+      <CardContent className="max-h-[450px] overflow-x-hidden overflow-y-auto no-scrollbar">
         <Table>
           <TableHeader className="sticky top-0 bg-background bg-opacity-100">
             <TableRow>

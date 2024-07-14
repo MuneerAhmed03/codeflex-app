@@ -6,6 +6,8 @@ import Link from "next/link";
 import { GithubIcon, LeetCodeIcon } from "@/components/ui/icons";
 import { fetchLeetCode } from "@/lib/lc";
 import { Metadata } from "next";
+import { LeaderBoard } from "@/components/leader-board"
+import { leaderboard } from "@/actions/types";;
 
 export const runtime = "edge";
 
@@ -13,13 +15,23 @@ const BASE_URL =
   process.env.NODE_ENV === "production"
     ? process.env.NEXT_PUBLIC_BASE_URL!
     : process.env.NEXT_PUBLIC_LOCAL_URL!;
-const DB_URL = process.env.DB_URL!;
+const DB_URL = process.env.NEXT_PUBLIC_DB_URL!;
 type Props = {
   searchParams: {
     leetcode: string;
     github: string;
   };
 };
+
+async function getLeaderBoard(){
+  const response = await fetch(`${DB_URL}/lb`, {next : { revalidate : 0} });
+  if (!response.ok) {
+      console.error(`Failed to fetch leaderboard ${response.status}`);
+      return;
+  }
+  const json :leaderboard = await response.json();
+  return json;
+}
 
 function parse(props: Props) {
   return {
@@ -62,6 +74,58 @@ function getRatioText(input: {
   return txt;
 }
 
+
+async function fetchUserData(props:Props) {
+  try {
+    const { github, leetcode } = parse(props);
+    const response = await fetchData(props);
+    
+    if (response) {
+      return { github, leetcode, userData: response };
+    }
+
+    const pageData = await getData(props);
+    if (!pageData.user) {
+      return { github, leetcode, userData: null, status: pageData.status };
+    }
+
+    await postUserData(pageData.user);
+    return { github, leetcode, userData: pageData.user, status: 'success' };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return { github: '', leetcode: '', userData: null };
+  }
+}
+
+async function postUserData(user:UserSchema) {
+  try {
+    await fetch(`${DB_URL}/post`, {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+  } catch (error) {
+    console.error('Error posting user data:', error);
+  }
+}
+
+async function fetchData(props: Props) {
+  const { leetcode, github } = parse(props);
+  try {
+    const response = await fetch(
+      `${DB_URL}/user?` +
+        new URLSearchParams({ lc: leetcode, gh: github }).toString()
+    );
+    const data: UserSchema[] = await response.json();
+    const user = data[0];
+    return user;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+
 async function getData(props: Props) {
   const { leetcode, github } = parse(props);
 
@@ -100,41 +164,21 @@ async function getData(props: Props) {
     github: githubData.metadata,
     leetCode: leetCodeData,
   });
-  // try {
-  //   const post = await fetch(`${DB_URL}/post`, {
-  //     method: `POST`,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(user),
-  //   });
-  //   console.log(post);
-  // } catch (err) {
-  //   console.log(err);
-  // }
-
   return {
     status: "success",
     user,
   } as const;
 }
 
-async function fetchData(props: Props) {
-  const { leetcode, github } = parse(props);
-  try {
-    const response = await fetch(
-      `${DB_URL}/user?` +
-        new URLSearchParams({ lc: leetcode, gh: github }).toString()
-    );
-    const data: UserSchema[] = await response.json();
-    const user = data[0];
-    console.log("called db");
-    return user;
-  } catch (err) {
-    console.log(err);
-    return;
-  }
+function buildImageUrl(userData: UserSchema) {
+  return new URLSearchParams({
+    avatar: userData.avatar,
+    github: userData.totalContributions.toString(),
+    lc: userData.totalSubmissions.toString(),
+    name: userData.name,
+  }).toString();
 }
+
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { leetcode, github } = parse(props);
@@ -167,115 +211,90 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function Page(props: Props) {
-  let github: string;
-  let leetcode: string;
-  try {
-    const p = parse(props);
-    github = p.github;
-    leetcode = p.leetcode;
-  } catch (error) {
-    return <div>Invalid URL {JSON.stringify(props.searchParams)}</div>;
-  }
-  let github_id = "";
-  let lc_id = "";
-  let imageUrl = "";
-  let txt = "";
-
-  const response = await fetchData(props);
-  if (response) {
-    github_id = response.github_id;
-    lc_id = response.lc_id;
-    imageUrl = new URLSearchParams({
-      avatar: response.avatar,
-      github: response.totalContributions.toString(),
-      lc: response.totalSubmissions.toString(),
-      name: response.name,
-    }).toString();
-    txt = getRatioText({
-      submissions: response.totalSubmissions,
-      commits: response.totalContributions,
-      displayName: response.name,
-    });
+  const leaderboardResult = await getLeaderBoard();
+  let leaderboard: leaderboard | null;
+  if (!leaderboardResult) {
+    leaderboard = null;
   } else {
-    const pageData = await getData(props);
-    if (!pageData.user) {
-      return (
-        <div>
-          <h1> {pageData.status}</h1>
-        </div>
-      );
-    }
-    github_id = pageData.user.github_id;
-    lc_id = pageData.user.lc_id;
-    imageUrl = new URLSearchParams({
-      avatar: pageData.user.avatar,
-      github: pageData.user.totalContributions.toString(),
-      lc: pageData.user.totalSubmissions.toString(),
-      name: pageData.user.name,
-    }).toString();
-
-    txt = getRatioText({
-      submissions: pageData.user.totalSubmissions,
-      commits: pageData.user.totalContributions,
-      displayName: pageData.user.name,
-    });
-    console.log("body: ", pageData.user);
-    const post = await fetch(`${DB_URL}/post`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(pageData.user),
-    });
-    const responseText = await post.text();
+    leaderboard = leaderboardResult;
   }
+  const { github, leetcode, userData, status } = await fetchUserData(props);
+  if (!userData) {
+    return (
+      <div>
+        <h1>{status}</h1>
+      </div>
+    );
+  }
+  const imageUrl = buildImageUrl(userData);
+  const txt = getRatioText({
+    submissions: userData.totalSubmissions,
+    commits: userData.totalContributions,
+    displayName: userData.name,
+  });
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <div className="flex lg:flex-row flex-col lg:justify-between min-h-screen -mt-8">
-        <div className="flex flex-col justify-center lg:items-center items-start lg:min-h-screen min-h-96 lg:p-6 p-2 ">
-          <div
-            id="profile"
-            className="flex lg:flex-row flex-col lg:items-center items-start justify-start relative"
-          >
-            <div className="flex flex-col items-start h-full py-2 px-2 lg:px-4 lg:py-2">
-              <img
-                src={`https://avatars.githubusercontent.com/${github}`}
-                alt="avatar"
-                className="lg:w-36 lg:h-36 w-24 h-24 rounded-full"
-                style={{
-                  borderRadius: "50%",
-                }}
-              />
-            </div>
-            <div className="flex flex-col p items-start text-[18px] font-medium ">
-              <Link
-                href={`https://github.com/${github_id}/`}
-                className="inline-flex items-center justify-center py-2 hover:underline "
-                prefetch={false}
-              >
-                <GithubIcon className="mx-2" />
-                {github_id}
-              </Link>
-              <Link
-                href={`https://leetcode.com/u/${lc_id}`}
-                className="inline-flex items-center justify-center py-3 hover:underline"
-                prefetch={false}
-              >
-                <LeetCodeIcon className="mx-2 w-6 h-6 " />
-                {lc_id}
-              </Link>
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center items-center lg:min-h-screen px-1 lg:p-6">
-          <CompareBox
-            src={`${BASE_URL}/api/og/compare?${imageUrl}`}
-            txt={txt}
-            github={github}
-            leetCode={leetcode}
+        <ProfileSection github={github} userData={userData} />
+        <CompareSection imageUrl={imageUrl} ratioText={txt} github={github} leetcode={leetcode} />
+      </div>
+      {leaderboard && <LeaderboardSection leaderboard={leaderboard} />}
+    </div>
+  );
+}
+
+function ProfileSection({ github, userData }: { github: string; userData: UserSchema }) {
+  return (
+    <div className="flex flex-col justify-center lg:items-center items-start lg:min-h-screen min-h-96 lg:p-6 p-2">
+      <div id="profile" className="flex lg:flex-row flex-col lg:items-center items-start justify-start relative">
+        <div className="flex flex-col items-start h-full py-2 px-2 lg:px-4 lg:py-2">
+          <img
+            src={`https://avatars.githubusercontent.com/${github}`}
+            alt="avatar"
+            className="lg:w-36 lg:h-36 w-24 h-24 rounded-full"
+            style={{ borderRadius: "50%" }}
           />
         </div>
+        <div className="flex flex-col p items-start text-[18px] font-medium">
+          <ProfileLink href={`https://github.com/${userData.github_id}/`} icon={<GithubIcon className="mx-2" />} text={userData.github_id} />
+          <ProfileLink href={`https://leetcode.com/u/${userData.lc_id}`} icon={<LeetCodeIcon className="mx-2 w-6 h-6" />} text={userData.lc_id} />
+        </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+function ProfileLink({ href, icon, text }: { href: string; icon: React.ReactNode; text: string }) {
+  return (
+    <Link href={href} className="inline-flex items-center justify-center py-2 hover:underline" prefetch={false}>
+      {icon}
+      {text}
+    </Link>
+  );
+}
+
+function CompareSection({ imageUrl, ratioText, github, leetcode }: { imageUrl: string; ratioText: string; github: string; leetcode: string }) {
+  return (
+    <div className="flex justify-center items-center lg:min-h-screen px-1 lg:p-6">
+      <CompareBox
+        src={`${BASE_URL}/api/og/compare?${imageUrl}`}
+        txt={ratioText}
+        github={github}
+        leetCode={leetcode}
+      />
+    </div>
+  );
+}
+
+function LeaderboardSection({ leaderboard }: { leaderboard: any }) {
+  return (
+    <div className="flex lg:flex-row max-w-full flex-col items-center justify-around my-20">
+      <div className="w-[334px]">
+        <LeaderBoard users={leaderboard.grinders} table="lc" />
+      </div>
+      <div className="w-[334px]">
+        <LeaderBoard users={leaderboard.contributors} table="gh" />
+      </div>
+    </div>
   );
 }
