@@ -7,7 +7,8 @@ import { GithubIcon, LeetCodeIcon } from "@/components/ui/icons";
 import { fetchLeetCode } from "@/lib/lc";
 import { Metadata } from "next";
 import { LeaderBoard } from "@/components/leader-board"
-import { leaderboard } from "@/actions/types";;
+import { leaderboard } from "@/actions/types";
+
 
 export const runtime = "edge";
 
@@ -78,18 +79,24 @@ function getRatioText(input: {
 async function fetchUserData(props:Props) {
   try {
     const { github, leetcode } = parse(props);
-    const response = await fetchData(props);
+    // const response = await fetchData(props);
     
-    if (response) {
-      return { github, leetcode, userData: response };
-    }
+    // if (response) {
+    //   return { github, leetcode, userData: response };
+    // }
 
     const pageData = await getData(props);
     if (!pageData.user) {
       return { github, leetcode, userData: null, status: pageData.status };
     }
 
-    await postUserData(pageData.user);
+    try{
+      await postUserData(pageData.user);
+    }
+    catch (error) {
+      console.error('Error posting user data:', error);
+    }
+    
     return { github, leetcode, userData: pageData.user, status: 'success' };
   } catch (error) {
     console.error('Error fetching user data:', error);
@@ -289,10 +296,10 @@ function CompareSection({ imageUrl, ratioText, github, leetcode }: { imageUrl: s
 function LeaderboardSection({ leaderboard }: { leaderboard: any }) {
   return (
     <div className="flex lg:flex-row max-w-full flex-col items-center justify-around my-20">
-      <div className="w-[334px]">
+      <div className="w-[342px]">
         <LeaderBoard users={leaderboard.grinders} table="lc" />
       </div>
-      <div className="w-[334px]">
+      <div className="w-[342px]">
         <LeaderBoard users={leaderboard.contributors} table="gh" />
       </div>
     </div>

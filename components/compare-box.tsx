@@ -3,12 +3,12 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { CopyIcon} from "./ui/icons"
 import Link from "next/link"
-import { ClipboardItem , ClipboardItemInterface } from "clipboard-polyfill"
-import { TwitterLogoIcon } from "@radix-ui/react-icons"
-import { useQuery } from "@tanstack/react-query"
+import { TwitterLogoIcon , Link2Icon } from "@radix-ui/react-icons"
+import toast, { Toaster } from "react-hot-toast";
 
+
+const notify = () => toast("URL Copied!");
 
 const BASE_URL = process.env.NODE_ENV==="production"
   ? process.env.NEXT_PUBLIC_BASE_URL!
@@ -25,35 +25,49 @@ export function CompareBox(
     url: `${BASE_URL}/compare?leetcode=${props.leetCode}&github=${props.github}`,
   })
   const [success, setSuccess] = useState(false)
-  const handleCopy =() => {
-    const imgTag = document.getElementById('og') as HTMLImageElement | null;
+  // const handleCopy =() => {
+  //   const imgTag = document.getElementById('og') as HTMLImageElement | null;
 
-    if (imgTag) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+  //   if (imgTag) {
+  //     const canvas = document.createElement('canvas');
+  //     const ctx = canvas.getContext('2d');
 
-      if (ctx) {
-        canvas.width = imgTag.naturalWidth;
-        canvas.height = imgTag.naturalHeight;
-        ctx.drawImage(imgTag, 0, 0);
+  //     if (ctx) {
+  //       canvas.width = imgTag.naturalWidth;
+  //       canvas.height = imgTag.naturalHeight;
+  //       ctx.drawImage(imgTag, 0, 0);
 
-        canvas.toBlob((blob) => {
-          if (blob) {
+  //       canvas.toBlob((blob) => {
+  //         if (blob) {
 
-            const item = new ClipboardItem({ 'image/png': blob });
+  //           const item = new ClipboardItem({ 'image/png': blob });
 
-            navigator.clipboard.write([item]).then(() => {
-              console.log('Image copied to clipboard.');
-            }).catch((error) => {
-              console.error('Error copying image to clipboard:', error);
-            });
-          }
-        }, 'image/png');
+  //           navigator.clipboard.write([item]).then(() => {
+  //             console.log('Image copied to clipboard.');
+  //           }).catch((error) => {
+  //             console.error('Error copying image to clipboard:', error);
+  //           });
+  //         }
+  //       }, 'image/png');
+  //   } else {
+  //     console.log('Image tag with the specified ID was not found.');
+  //   }
+  // };
+  // }
+
+  const handleCopy = () => {
+    const url = queryParams.get("url");
+    if (url !== null) {
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        console.log('URL copied to clipboard.');
+      }).catch((error) => {
+        console.error('Error copying URL to clipboard:', error);
+      });
     } else {
-      console.log('Image tag with the specified ID was not found.');
+      console.error('URL parameter is missing.');
     }
+    notify();
   };
-  }
 
   return (
     <Card className="bg-card max-w-2xl p-4">
@@ -74,7 +88,7 @@ export function CompareBox(
       
       <div className="flex items-center justify-between mt-4">
         <Button id="copy" variant="outline" onClick={handleCopy} >
-          <CopyIcon className="w-4 h-4 mr-2" />
+          <Link2Icon className="w-4 h-4 mr-2" />
           Copy Image
         </Button>
         <Link
@@ -86,6 +100,7 @@ export function CompareBox(
           Tweet
         </Link>
       </div>
+      <Toaster position="bottom-center" reverseOrder={false} />
     </Card>
 
   )

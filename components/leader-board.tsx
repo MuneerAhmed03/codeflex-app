@@ -19,7 +19,8 @@ export function LeaderBoard(props : {
             <TableRow>
               <TableHead className=" w-[50px]">#</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead className="text-right ">{props.table==="lc" ? `Submission` : `Commits`}</TableHead>
+              <TableHead className="text-center">{props.table==="lc" ? `Submission` : `Commits`}</TableHead>
+              <TableHead> " " </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
